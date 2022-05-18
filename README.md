@@ -4,6 +4,12 @@
 ## 修改git hub方法: 
 請自行領悟: <https://www.rs-online.com/designspark/github-microsoft-visual-studio-code-cn>
 
+簡單來說: 
+1. 按+追蹤要更新的文件內容
+2. 按[勾勾]commit所有變更
+3. 終端輸入git lfs ls-files
+4. 終端輸入git push origin master (origin是遠端存放庫的名字)
+
 Contest Management System
 =========================
 
