@@ -1,0 +1,187 @@
+{% import time %}
+{% import json %}
+{% from cms import DEFAULT_LANGUAGES, LANGUAGE_NAMES, LANGUAGES, config %}
+{% from cmscommon.datetime import make_timestamp %}
+{% from cmscommon.crypto import get_hex_random_key %}
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">
+    </script>
+    <link rel="shortcut icon" href="{{ url_root }}/static/favicon.ico" />
+    <script type="text/javascript" src="{{ url_root }}/static/js/bootstrap.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/cws_utils.js"></script>
+    <link rel="stylesheet" href="{{ url_root }}/static/css/bootstrap.css">
+    <link rel="stylesheet" href="{{ url_root }}/static/cws_style.css">
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="shortcut icon" href="{{ url_root }}/static/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="{{ url_root }}/static/reset.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_root }}/static/aws_style.css">
+    <script type="text/javascript" src="{{ url_root }}/static/web_rpc.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/aws_utils.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/jq/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/jq/jquery.jqplot.min.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/jq/jqplot.dateAxisRenderer.min.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/jq/jqplot.enhancedLegendRenderer.min.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/sh/shCore.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/sh/shBrushCpp.js"></script>
+    <script type="text/javascript" src="{{ url_root }}/static/sh/shBrushDelphi.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_root }}/static/jq/jquery.jqplot.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_root }}/static/sh/shCore.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_root }}/static/sh/shThemeDefault.css"/>
+
+    {% if contest is None %}
+    <title>Admin</title>
+    {% else %}
+    <title>Admin: {{ contest.description }}</title>
+    {% end %}
+    <script type="text/javascript">
+<!--
+function init()
+{
+    {% if contest is None %}
+    utils = new CMS.AWSUtils("{{ url_root }}", {{ make_timestamp(timestamp) }}, 0, 0, -1);
+    utils.update_notifications();
+    setInterval(function() { utils.update_notifications(); }, 15000);
+    {% else %}
+    utils = new CMS.AWSUtils("{{ url_root }}", {{ make_timestamp(timestamp) }}, {{ make_timestamp(contest.start) }}, {{ make_timestamp(contest.stop) }}, {{ phase }});
+
+    utils.update_remaining_time();
+    setInterval(function() { utils.update_remaining_time(); }, 1000);
+    utils.update_notifications();
+    setInterval(function() { utils.update_notifications(); }, 15000);
+    {% end %}
+
+    $(document).click(utils.hide_subpage);
+
+    // delegate() ensures that the event is fired even for elements
+    // that are added in the future.
+    $(document).delegate('.toggling_on', 'click', utils.toggle_visibility);
+    $(document).delegate('.toggling_off', 'click', utils.toggle_visibility);
+
+    {% block js_init %}{% end %}
+}
+
+{% block js %}{% end %}
+
+$(document).ready(init);
+
+//-->
+    </script>
+  </head>
+  <body class="admin">
+    <div id="global">
+    {% if current_user is None %}  
+      {% if handler.get_argument("login_error", "") != "" %}
+      <div id="notifications" class="notifications">
+        <div class="alert alert-block alert-error notification">
+          <a class="close" data-dismiss="alert" href="#">&#xD7;</a>
+          <h4 class="alert-heading">{{ _("Failed to log in.") }}</h4>
+        </div>
+      </div>
+      {% end %}
+      <div class="login_container">
+        <div class="login_box hero-unit">
+          <h1>{{ _("Welcome") }}</h1>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+          <form class="form-horizontal" action="{{ url_root }}/login" method="POST">
+            <input type="hidden" name="next" value="{{ handler.get_argument("next", "/") }}">
+            <fieldset>
+              <div class="control-group">
+                <label class="control-label" for="input01">{{ _("Username") }}</label>
+                <div class="controls">
+                  <input type="text" class="input-xlarge" name="adminname">
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label" for="input01">{{ _("Password") }}</label>
+                <div class="controls">
+                  <input type="password" class="input-xlarge" name="password">
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="controls">
+                  <button type="submit" class="btn btn-primary btn-large">{{ _("Login") }}</button>
+                  <button type="reset" class="btn btn-large">{{ _("Reset") }}</button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    {% else %} 
+      <div id="sidebar">
+        <div class="login_notice"> 
+        <p class="navbar-text pull-right">
+              {% raw _("Hello,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em>%(username)s</em>&nbsp;&nbsp;</br>") % {"username": current_user.adminname} %}
+  <a class="btn" href="{{ url_root }}/logout">{{ _("Logout") }}</a>
+          </p>
+        </div>
+        <h1>Administration</h1>
+      {% if config.secret_key == config.secret_key_default %}
+        <div class="secret_notice">
+          Change secret_key in cms.conf!<br/>
+          For example,<br/>
+          {{ get_hex_random_key() }}
+        </div>
+      {% end %}
+        <ul class="menu">
+          <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/{% if contest is not None %}{{ contest.id }}{% end %}">Overview</a></li>
+          <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/resourceslist{% if contest is not None %}/{{ contest.id }}{% end %}">Resource usage</a></li>
+        </ul>
+        <div class="hr"></div>
+        <select id="contest_selection_select" onchange="utils.switch_contest()">
+          <option value=null {% if contest is None %} selected {% end %}>Select a contest</option>
+      {% for i in contest_list %}
+
+          <option
+            value="{{ i.id }}"
+            {% if contest is not None and contest.id == i.id %}
+              selected
+            {% end %}
+          >
+            {{ i.name }} ({{ i.id }})
+          </option>
+      {% end %}
+        </select>
+        <a href="{{ url_root }}/contest/add" alt="New contest" style="text-decoration: none;">+</a>
+
+      {% if contest is not None %}
+        <div class="sidebar_left">Contest:</div>
+        <ul class="menu">
+          <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/contest/{{ contest.id }}">General</a></li>
+          <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/ranking/{{ contest.id }}">Ranking</a></li>
+          <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/userlist/{{ contest.id }}">Users</a></li>
+          <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/tasklist/{{ contest.id }}">Tasks</a></li>
+          <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/announcements/{{ contest.id }}">Announcements</a></li>
+          <li class="menu_entry">
+            <span id="unanswered_questions" class="unread"
+              {% if unanswered == 0 %} style="display: none;" {% end %}>
+              {{ unanswered }}
+            </span>
+            <a class="menu_link" href="{{ url_root }}/questions/{{ contest.id }}">Questions</a>
+          </li>
+        </ul>
+        <div class="hr"></div>
+        {% if phase != 1 %}
+        <div class="footer">Time left: <span id="remaining"></span></div>
+        {% end %}
+      {% end %}
+        <div class="cr_notice">CMS <a href="http://github.com/cms-dev/cms/">codebase</a> is released under the<br/><a href="http://www.gnu.org/licenses/agpl.txt">GNU Affero General Public License</a>.</div>
+      </div>
+
+      <div id="border"></div>
+      <div id="core">
+        <div id="notifications" class="notifications"></div>
+        <div id="subpage" onclick="var event = arguments[0] || window.event; event.stopPropagation()">
+          <div id="subpage_border"></div>
+          <div id="subpage_background"></div>
+          <div id="subpage_content"></div>
+        </div>
+      {% block core %}{% end %}
+      </div>
+    {% end %}
+    </div>
+  </body>
+</html>

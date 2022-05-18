@@ -1,0 +1,17 @@
+*~
+.*.sw?
+*.pyc
+build
+dist
+cms.egg-info
+.testfailures
+.unittestfailures
+.coverage*
+cache/
+lib/
+log/
+README.md
+LICENSE.txt
+AUTHORS.txt
+LICENSE-AGPL3.txt
+REQUIREMENTS.txt
