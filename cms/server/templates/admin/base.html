@@ -12,7 +12,7 @@
     <script type="text/javascript" src="{{ url_root }}/static/js/bootstrap.js"></script>
     <script type="text/javascript" src="{{ url_root }}/static/cws_utils.js"></script>
     <link rel="stylesheet" href="{{ url_root }}/static/css/bootstrap.css">
-    <link rel="stylesheet" href="{{ url_root }}/static/cws_style.css">
+ 
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="shortcut icon" href="{{ url_root }}/static/favicon.ico" />
@@ -74,8 +74,8 @@ $(document).ready(init);
     <div id="global">
     {% if current_user is None %}  
       {% if handler.get_argument("login_error", "") != "" %}
-      <div id="notifications" class="notifications">
-        <div class="alert alert-block alert-error notification">
+      <div id="login_fails" class="login_fails">
+        <div class="alert alert-block alert-error login_fail">
           <a class="close" data-dismiss="alert" href="#">&#xD7;</a>
           <h4 class="alert-heading">{{ _("Failed to log in.") }}</h4>
         </div>

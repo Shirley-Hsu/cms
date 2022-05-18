@@ -610,7 +610,7 @@ class LogoutHandler(BaseHandler):
 
 def SimpleContestHandler(page):
     class Cls(BaseHandler):
-	
+	@tornado.web.authenticated
         def get(self, contest_id):
             self.contest = self.safe_get_item(Contest, contest_id)
 
@@ -620,7 +620,7 @@ def SimpleContestHandler(page):
 
 
 class ResourcesListHandler(BaseHandler):
-    
+    @tornado.web.authenticated
     def get(self, contest_id=None):
         if contest_id is not None:
             self.contest = self.safe_get_item(Contest, contest_id)
@@ -635,7 +635,7 @@ class ResourcesListHandler(BaseHandler):
 
 
 class ResourcesHandler(BaseHandler):
-    
+    @tornado.web.authenticated
     def get(self, shard=None, contest_id=None):
         if contest_id is not None:
             self.contest = self.safe_get_item(Contest, contest_id)
@@ -671,7 +671,7 @@ class AddContestHandler(BaseHandler):
     """Adds a new contest.
 
     """
-    
+    @tornado.web.authenticated
     def get(self):
         self.r_params = self.render_params()
         self.render("add_contest.html", **self.r_params)
@@ -735,7 +735,7 @@ class AddContestHandler(BaseHandler):
 
 
 class ContestHandler(BaseHandler):
-    
+    @tornado.web.authenticated
     def get(self, contest_id):
         self.contest = self.safe_get_item(Contest, contest_id)
 
@@ -803,7 +803,7 @@ class AddStatementHandler(BaseHandler):
     """Add a statement to a task.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, task_id):
         task = self.safe_get_item(Task, task_id)
         self.contest = task.contest
@@ -867,7 +867,7 @@ class DeleteStatementHandler(BaseHandler):
     """Delete a statement.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, statement_id):
         statement = self.safe_get_item(Statement, statement_id)
         task = statement.task
@@ -883,6 +883,7 @@ class AddAttachmentHandler(BaseHandler):
     """Add an attachment to a task.
 
     """
+    @tornado.web.authenticated
     def get(self, task_id):
         task = self.safe_get_item(Task, task_id)
         self.contest = task.contest
@@ -931,7 +932,7 @@ class DeleteAttachmentHandler(BaseHandler):
     """Delete an attachment.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, attachment_id):
         attachment = self.safe_get_item(Attachment, attachment_id)
         task = attachment.task
@@ -947,7 +948,7 @@ class AddManagerHandler(BaseHandler):
     """Add a manager to a dataset.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, dataset_id):
         dataset = self.safe_get_item(Dataset, dataset_id)
         task = dataset.task
@@ -997,7 +998,7 @@ class DeleteManagerHandler(BaseHandler):
     """Delete a manager.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, manager_id):
         manager = self.safe_get_item(Manager, manager_id)
         task = manager.dataset.task
@@ -1013,7 +1014,7 @@ class AddDatasetHandler(BaseHandler):
     """Add a dataset to a task.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, task_id, dataset_id_to_copy):
         task = self.safe_get_item(Task, task_id)
         self.contest = task.contest
@@ -1111,7 +1112,7 @@ class RenameDatasetHandler(BaseHandler):
     """Rename the descripton of a dataset.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, dataset_id):
         dataset = self.safe_get_item(Dataset, dataset_id)
         task = dataset.task
@@ -1151,7 +1152,7 @@ class DeleteDatasetHandler(BaseHandler):
     """Delete a dataset from a task.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, dataset_id):
         dataset = self.safe_get_item(Dataset, dataset_id)
         task = dataset.task
@@ -1179,7 +1180,7 @@ class ActivateDatasetHandler(BaseHandler):
     """Set a given dataset to be the active one for a task.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, dataset_id):
         dataset = self.safe_get_item(Dataset, dataset_id)
         task = dataset.task
@@ -1252,7 +1253,7 @@ class ToggleAutojudgeDatasetHandler(BaseHandler):
     """Toggle whether a given dataset is judged automatically or not.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, dataset_id):
         dataset = self.safe_get_item(Dataset, dataset_id)
         task = dataset.task
@@ -1277,7 +1278,7 @@ class AddTestcaseHandler(BaseHandler):
     """Add a testcase to a dataset.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, dataset_id):
         dataset = self.safe_get_item(Dataset, dataset_id)
         task = dataset.task
@@ -1348,7 +1349,7 @@ class AddTestcasesHandler(BaseHandler):
     """Add several testcases to a dataset.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, dataset_id):
         dataset = self.safe_get_item(Dataset, dataset_id)
         task = dataset.task
@@ -1505,7 +1506,7 @@ class DeleteTestcaseHandler(BaseHandler):
     """Delete a testcase.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, testcase_id):
         testcase = self.safe_get_item(Testcase, testcase_id)
         task = testcase.dataset.task
@@ -1520,7 +1521,7 @@ class DeleteTestcaseHandler(BaseHandler):
 
 
 class AddTaskHandler(BaseHandler):
-    
+    @tornado.web.authenticated
     def get(self, contest_id):
         self.contest = self.safe_get_item(Contest, contest_id)
 
@@ -1607,7 +1608,7 @@ class TaskHandler(BaseHandler):
     """Task handler, with a POST method to edit the task.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, task_id):
         task = self.safe_get_item(Task, task_id)
         self.contest = task.contest
@@ -1698,7 +1699,7 @@ class DatasetSubmissionsHandler(BaseHandler):
     view the results under different datasets.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, dataset_id):
         dataset = self.safe_get_item(Dataset, dataset_id)
         task = dataset.task
@@ -1728,7 +1729,7 @@ class RankingHandler(BaseHandler):
     """Shows the ranking for a contest.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, contest_id, format="online"):
         # This validates the contest id.
         self.safe_get_item(Contest, contest_id)
@@ -1762,7 +1763,7 @@ class AddAnnouncementHandler(BaseHandler):
     """Called to actually add an announcement
 
     """
-    
+    @tornado.web.authenticated
     def post(self, contest_id):
         self.contest = self.safe_get_item(Contest, contest_id)
 
@@ -1780,7 +1781,7 @@ class RemoveAnnouncementHandler(BaseHandler):
     """Called to remove an announcement.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, ann_id):
         ann = self.safe_get_item(Announcement, ann_id)
         contest_id = ann.contest.id
@@ -1796,7 +1797,7 @@ class UserViewHandler(BaseHandler):
     messages), and allows to send the latters.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, user_id):
         user = self.safe_get_item(User, user_id)
         self.contest = user.contest
@@ -1848,7 +1849,7 @@ class UserViewHandler(BaseHandler):
 
 
 class AddUserHandler(SimpleContestHandler("add_user.html")):
-    
+    @tornado.web.authenticated
     def post(self, contest_id):
         self.contest = self.safe_get_item(Contest, contest_id)
 
@@ -1900,7 +1901,7 @@ class SubmissionViewHandler(BaseHandler):
     compile please check'.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, submission_id, dataset_id=None):
         submission = self.safe_get_item(Submission, submission_id)
         task = submission.task
@@ -1927,7 +1928,7 @@ class SubmissionFileHandler(FileHandler):
     """Shows a submission file.
 
     """
-    
+    @tornado.web.authenticated
     # FIXME: Replace with FileFromDigestHandler?
     def get(self, file_id):
         sub_file = self.safe_get_item(File, file_id)
@@ -1947,7 +1948,7 @@ class SubmissionCommentHandler(BaseHandler):
     """Called when the admin comments on a submission.
 
     """
-    
+    @tornado.web.authenticated
     def post(self, submission_id, dataset_id=None):
         submission = self.safe_get_item(Submission, submission_id)
 
@@ -1974,7 +1975,7 @@ class QuestionsHandler(BaseHandler):
     """Page to see and send messages to all the contestants.
 
     """
-    
+    @tornado.web.authenticated
     def get(self, contest_id):
         self.contest = self.safe_get_item(Contest, contest_id)
 
@@ -1990,7 +1991,7 @@ class QuestionReplyHandler(BaseHandler):
     """Called when the manager replies to a question made by a user.
 
     """
-    
+    @tornado.web.authenticated
     def post(self, question_id):
         ref = self.get_argument("ref", "/")
         question = self.safe_get_item(Question, question_id)
@@ -2023,7 +2024,7 @@ class QuestionIgnoreHandler(BaseHandler):
     question.
 
     """
-    
+    @tornado.web.authenticated
     def post(self, question_id):
         ref = self.get_argument("ref", "/")
 
@@ -2047,7 +2048,7 @@ class MessageHandler(BaseHandler):
     """Called when a message is sent to a specific user.
 
     """
-    
+    @tornado.web.authenticated
     def post(self, user_id):
         user = self.safe_get_item(User, user_id)
         self.contest = user.contest
@@ -2064,7 +2065,7 @@ class MessageHandler(BaseHandler):
 
 
 class FileFromDigestHandler(FileHandler):
-    
+    @tornado.web.authenticated
     def get(self, digest, filename):
         # TODO: Accept a MIME type
         self.sql_session.close()
@@ -2075,7 +2076,7 @@ class NotificationsHandler(BaseHandler):
     """Displays notifications.
 
     """
-    
+    @tornado.web.authenticated
     def get(self):
         res = []
         last_notification = make_datetime(
