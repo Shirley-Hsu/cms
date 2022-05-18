@@ -2,7 +2,7 @@
 自己的markdown自己寫
 
 ## 修改git hub方法: 
-### 請自行領悟: https://www.rs-online.com/designspark/github-microsoft-visual-studio-code-cn
+請自行領悟: <https://www.rs-online.com/designspark/github-microsoft-visual-studio-code-cn>
 
 Contest Management System
 =========================
