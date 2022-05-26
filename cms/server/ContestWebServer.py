@@ -60,6 +60,8 @@ from urllib import quote
 
 import tornado.web
 
+
+
 from sqlalchemy import func
 
 from werkzeug.http import parse_accept_header
@@ -70,6 +72,7 @@ from cms.io import WebService
 from cms.db import Session, Contest, User, Task, Question, Submission, Token, \
     File, UserTest, UserTestFile, UserTestManager, PrintJob
 from cms.db.filecacher import FileCacher
+from cms.grading import compute_changes_for_dataset
 from cms.grading.tasktypes import get_task_type
 from cms.grading.scoretypes import get_score_type
 from cms.server import file_handler_gen, actual_phase_required, \
@@ -86,6 +89,63 @@ from cmscommon.archive import Archive
 
 logger = logging.getLogger(__name__)
 
+
+def argument_reader(func, empty=None):
+    """Return an helper method for reading and parsing form values.
+
+    func (function): the parser and validator for the value.
+    empty (object): the value to store if an empty string is retrieved.
+
+    return (function): a function to be used as a method of a
+        RequestHandler.
+
+    """
+    def helper(self, dest, name, empty=empty):
+        """Read the argument called "name" and save it in "dest".
+
+        self (RequestHandler): a thing with a get_argument method.
+        dest (dict): a place to store the obtained value.
+        name (string): the name of the argument and of the item.
+        empty (object): overrides the default empty value.
+
+        """
+        value = self.get_argument(name, None)
+        if value is None:
+            return
+        if value == "":
+            dest[name] = empty
+        else:
+            dest[name] = func(value)
+    return helper
+
+def try_commit(session, handler):
+    """Try to commit the session, if not successful display a warning
+    in the webpage.
+
+    session (Session): the session to commit.
+    handler (BaseHandler): just to extract the information about AWS.
+
+    return (bool): True if commit was successful, False otherwise.
+
+    """
+    try:
+        session.commit()
+    except IntegrityError as error:
+	handler.application.service.add_notification(
+                handler.current_user.username,
+                handler.timestamp,
+                handler._("Operation failed."),
+                error,
+                ContestWebServer.NOTIFICATION_SUCCESS)
+        return False
+    else:
+	handler.application.service.add_notification(
+                handler.current_user.username,
+                handler.timestamp,
+                handler._("Operation successful."),
+                "",
+                ContestWebServer.NOTIFICATION_SUCCESS)
+        return True
 
 def check_ip(client, wanted):
     """Return if client IP belongs to the wanted subnet.
@@ -117,6 +177,31 @@ class BaseHandler(CommonRequestHandler):
     # this handler is called. Useful to filter asynchronous
     # requests.
     refresh_cookie = True
+
+
+
+    get_string = argument_reader(lambda a: a, empty="")
+
+    def safe_get_item(self, cls, ident, session=None):
+        """Get item from database of class cls and id ident, using
+        session if given, or self.sql_session if not given. If id is
+        not found, raise a 404.
+
+        cls (type): class of object to retrieve.
+        ident (string): id of object.
+        session (Session|None): session to use.
+
+        return (object): the object with the given id.
+
+        raise (HTTPError): 404 if not found.
+
+        """
+        if session is None:
+            session = self.sql_session
+        entity = cls.get_from_id(ident, session)
+        if entity is None:
+            raise tornado.web.HTTPError(404)
+        return entity
 
     def prepare(self):
         """This method is executed at the beginning of each request.
@@ -542,7 +627,7 @@ class LoginHandler(BaseHandler):
                                              user.password,
                                              make_timestamp())),
                                expires_days=None)
-        self.redirect("/")
+        self.redirect(next_page)
 
 
 class StartHandler(BaseHandler):
@@ -2025,6 +2110,61 @@ class StaticFileGzHandler(tornado.web.StaticFileHandler):
             return "text/plain"
         else:
             return tornado.web.StaticFileHandler.get_content_type(self)
+class ChangePasswordHandler(BaseHandler):
+    """Shows the details of a single user (submissions, questions,
+    messages), and allows to send the latters.
+
+    """
+    @tornado.web.authenticated
+    def get(self):
+	
+	user = self.sql_session.query(User)\
+            .filter(User.contest == self.contest)\
+            .filter(User.username == self.current_user.username).first()
+	user = self.safe_get_item(User, user.id)        
+	self.contest = user.contest
+
+        self.r_params = self.render_params()
+        self.r_params["selected_user"] = user
+        self.render("change_password.html", **self.r_params)
+
+    def post(self):
+        user = self.sql_session.query(User)\
+            .filter(User.contest == self.contest)\
+            .filter(User.username == self.current_user.username).first()
+	user = self.safe_get_item(User, user.id)
+        self.contest = user.contest
+
+        try:
+            attrs = user.get_attrs()
+
+            self.get_string(attrs, "first_name")
+            self.get_string(attrs, "last_name")
+            self.get_string(attrs, "username", empty=None)
+            self.get_string(attrs, "password")
+            self.get_string(attrs, "email")
+
+            assert attrs.get("username") is not None, \
+                "No username specified."
+
+
+            # Update the user.
+            user.set_attrs(attrs)
+
+        except Exception as error:
+	    self.application.service.add_notification(
+                self.current_user.username,
+                self.timestamp,
+                self._("Invalid test!"),
+                error,
+            ContestWebServer.NOTIFICATION_SUCCESS)
+            self.redirect("/changepassword")
+            return
+
+        if try_commit(self.sql_session, self):
+            # Update the user on RWS.
+            self.application.service.proxy_service.reinitialize()
+        self.redirect("/changepassword")
 
 _cws_handlers = [
     (r"/", MainHandler),
@@ -2054,4 +2194,5 @@ _cws_handlers = [
     (r"/testing", UserTestInterfaceHandler),
     (r"/printing", PrintingHandler),
     (r"/stl/(.*)", StaticFileGzHandler, {"path": config.stl_path}),
+    (r"/changepassword", ChangePasswordHandler),
 ]

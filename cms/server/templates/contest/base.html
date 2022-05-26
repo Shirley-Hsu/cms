@@ -81,7 +81,7 @@ $(document).ready(function () {
         <div class="login_container">
             <div class="login_box hero-unit">
                 <h1>{{ _("Welcome") }}</h1>
-                <p>{{ _("Please log in") }}</p>
+                <p>{{ contest.description }}</p>
                 <form class="form-horizontal" action="{{ url_root }}/login" method="POST">
                     <input type="hidden" name="next" value="{{ handler.get_argument("next", "/") }}">
                     <fieldset>
@@ -159,6 +159,9 @@ $(document).ready(function () {
                                     <span id="unread_count" class="label label-warning">{{ _("%d unread") % int(unread_count) }}</span>
     {% end %}
                                     </a>
+                            </li>
+			    <li{% if request.path == '/change_password' %} class="active"{% end %}>
+                                <a href="{{ url_root }}/changepassword">{{ _("Change Password") }}</a>
                             </li>
     {% if actual_phase == 0 %}
         {% for t_iter in contest.tasks %}

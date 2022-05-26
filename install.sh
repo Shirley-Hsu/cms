@@ -2,3 +2,7 @@ sudo apt-get install build-essential fpc postgresql postgresql-client gettext py
 
 sudo apt-get install nginx-full php5-cli php5-fpm phppgadmin python-yaml python-sphinx texlive-latex-base python-cups a2ps -y
 
+sudo apt-get install git
+
+git clone https://github.com/Shirley-Hsu/cms.git
+
