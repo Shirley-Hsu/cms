@@ -474,6 +474,9 @@ msgstr "訊息詢問"
 msgid "Change Password"
 msgstr "修改密碼"
 
+msgid "User information"
+msgstr "使用者資訊"
+
 msgid "Statement"
 msgstr "題目敘述"
 
