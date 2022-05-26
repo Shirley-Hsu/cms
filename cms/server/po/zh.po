@@ -471,6 +471,9 @@ msgstr "競賽概況"
 msgid "Communication"
 msgstr "訊息詢問"
 
+msgid "Change Password"
+msgstr "修改密碼"
+
 msgid "Statement"
 msgstr "題目敘述"
 
