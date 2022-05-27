@@ -50,9 +50,9 @@ def do_setup():
     """Execute the setup thanks to setuptools.
 
     """
-    old_umask = os.umask(0022)   //port number
+    old_umask = os.umask(0022)
 
-    package_data = {           //資料位置
+    package_data = {
         "cms.io": [
             os.path.join("static", "*"),
         ],
@@ -90,7 +90,7 @@ def do_setup():
     # Apparently, pip installs package_data with the permissions they
     # have on the source. We fix the source permissions here. (Though,
     # pip works on a copy, so no changes happen.)
-    for package in package_data:                 
+    for package in package_data:
         for path in package_data[package]:
             for file_ in glob(os.path.join(package.replace(".", "/"), path)):
                 os.chmod(file_, 0644)
