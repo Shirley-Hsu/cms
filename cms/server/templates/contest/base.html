@@ -161,7 +161,7 @@ $(document).ready(function () {
                                     </a>
                             </li>
 			    <li{% if request.path == '/changepassword' %} class="active"{% end %}>
-                                <a href="{{ url_root }}/changepassword">修改密碼</a>
+                                <a href="{{ url_root }}/changepassword">{{ _("Change Password") }}</a>
                             </li>
     {% if actual_phase == 0 %}
         {% for t_iter in contest.tasks %}

@@ -76,9 +76,6 @@ class Admin(Base):
         Integer,
         nullable=False)
 
-    user_id = Column(
-        Unicode,
-        nullable=False)
 
     # Follows the description of the fields automatically added by
     # SQLAlchemy.

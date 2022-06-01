@@ -11,7 +11,6 @@
     <link rel="shortcut icon" href="{{ url_root }}/static/favicon.ico" />
     <script type="text/javascript" src="{{ url_root }}/static/js/bootstrap.js"></script>
     <script type="text/javascript" src="{{ url_root }}/static/cws_utils.js"></script>
-    <link rel="stylesheet" href="{{ url_root }}/static/css/bootstrap.css">
  
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -84,7 +83,7 @@ $(document).ready(init);
       <div class="login_container">
         <div class="login_box hero-unit">
           <h1>{{ _("Welcome") }}</h1>
-          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;Administration</p>
           <form class="form-horizontal" action="{{ url_root }}/login" method="POST">
             <input type="hidden" name="next" value="{{ handler.get_argument("next", "/") }}">
             <fieldset>
@@ -131,6 +130,7 @@ $(document).ready(init);
           <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/resourceslist{% if contest is not None %}/{{ contest.id }}{% end %}">Resource usage</a></li>
         </ul>
         <div class="hr"></div>
+	<div class="sidebar_left">Contest:</div>
         <select id="contest_selection_select" onchange="utils.switch_contest()">
           <option value=null {% if contest is None %} selected {% end %}>Select a contest</option>
       {% for i in contest_list %}
@@ -148,7 +148,7 @@ $(document).ready(init);
         <a href="{{ url_root }}/contest/add" alt="New contest" style="text-decoration: none;">+</a>
 
       {% if contest is not None %}
-        <div class="sidebar_left">Contest:</div>
+        
         <ul class="menu">
           <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/contest/{{ contest.id }}">General</a></li>
           <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/ranking/{{ contest.id }}">Ranking</a></li>
