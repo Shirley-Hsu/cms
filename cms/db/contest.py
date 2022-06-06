@@ -190,14 +190,6 @@ class Contest(Base):
         nullable=False,
         default=0)
 
-    type = Column(
-        Unicode,
-        nullable=False)
-
-    user_id = Column(
-        Unicode,
-        nullable=False)
-
     # Follows the description of the fields automatically added by
     # SQLAlchemy.
     # tasks (list of Task objects)
