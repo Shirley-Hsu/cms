@@ -1,5 +1,3 @@
-!/bin/sh
-
 sudo -u postgres createuser cmsuser -P
 
 sudo -u postgres createdb -O cmsuser database
