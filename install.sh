@@ -8,5 +8,5 @@ sudo ./setup.py install
 
 sudo usermod -a -G cmsuser shirley
 
-shutdown -r 0S
+shutdown -r 0
 
