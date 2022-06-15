@@ -216,7 +216,7 @@ def get_compilation_commands(language, source_filenames, executable_filename,
     """
     commands = []
     if language == LANG_C:
-        command = ["/usr/bin/gcc"]
+        command = ["/usr/local/bin/gcc"]
         if for_evaluation:
             command += ["-DEVAL"]
         command += ["-static", "-O2", "-o", executable_filename]
@@ -224,7 +224,7 @@ def get_compilation_commands(language, source_filenames, executable_filename,
         command += ["-lm"]
         commands.append(command)
     elif language == LANG_CPP:
-        command = ["/usr/bin/g++"]
+        command = ["/usr/local/bin/g++"]
         if for_evaluation:
             command += ["-DEVAL"]
         command += ["-static", "-O2", "-std=c++11",
